@@ -15,14 +15,3 @@ RUN composer install --optimize-autoloader --no-dev
 EXPOSE 10000
 
 CMD php artisan serve --host=0.0.0.0 --port=10000
-```
-
----
-
-### ⚠️ សំខាន់ — បង្កើត `.dockerignore` ផងដែរ:
-```
-vendor/
-node_modules/
-.env
-.git
-storage/logs/*
