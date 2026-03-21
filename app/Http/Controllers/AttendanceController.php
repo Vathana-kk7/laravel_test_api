@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Attendance;
+use Illuminate\Http\Request;
+
+class AttendanceController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        //
+        try {
+            $attendance=Attendance::with(["student","course"])->get();
+            return response()->json($attendance,200);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json([
+                "message"=>$th->getMessage(),
+            ],500);
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+   public function store(Request $request)
+{
+    try {
+        $request->validate([
+            'student_id' => 'required|integer|exists:student_in_classes,id',
+            'course_id'  => 'required|integer|exists:courses,id',
+            'date'       => 'nullable|date',
+            'status'     => 'nullable|string|in:present,absent,late,excused',
+        ]);
+
+        $attendance = new Attendance();
+        $attendance->student_id = $request->student_id;
+        $attendance->course_id  = $request->course_id;
+        $attendance->date       = $request->date ?? now();      // default to current date
+        $attendance->status     = $request->status ?? 'present'; // default status
+        $attendance->save();
+
+        return response()->json($attendance, 201);
+
+    } catch (\Throwable $th) {
+        return response()->json([
+            "message"=>$th->getMessage(),
+        ], 500);
+    }
+}
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Attendance $attendance)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Attendance $attendance)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Attendance $attendance)
+    {
+        //
+        try {
+
+        $validate=$request->validate([
+            "student_id"=>"required|integer",
+            "course_id"=>"required|integer",
+            "date"=>"required|string",
+            "status"=>"required|string",
+        ]);
+        $attendance->update($validate);
+        return response()->json([
+            "message"=>"Attendance update successfully",
+            "data"=>$attendance,
+        ]);
+
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json([
+                "message"=>$th->getMessage(),
+            ],500);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Attendance $attendance)
+    {
+        //
+        try {
+            $attendance->delete();
+            return response()->json([
+                "message"=>"attendance delete successfully",
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+             return response()->json([
+                "message"=>$th->getMessage(),
+            ],500);
+        }
+    }
+}
