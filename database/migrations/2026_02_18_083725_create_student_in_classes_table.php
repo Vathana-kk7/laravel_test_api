@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer("phone");
             $table->string("parent");
             $table->string("address");
+            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->timestamps();
         });
     }
