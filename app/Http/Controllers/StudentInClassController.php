@@ -54,6 +54,7 @@ class StudentInClassController extends Controller
         $student->phone = $request->phone;
         $student->parent = $request->parent;
         $student->address = $request->address;
+        $student->course_id = $request->course_id;
         $student->save();
 
         // Attach course + create attendance record
