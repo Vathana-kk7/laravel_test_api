@@ -42,7 +42,8 @@ class AttendanceController extends Controller
             'student_id' => 'required|integer|exists:student_in_classes,id',
             'course_id'  => 'required|integer|exists:courses,id',
             'date'       => 'nullable|date',
-            'status'     => 'nullable|string|in:present,absent,late,excused',
+            'status'     => 'nullable|string|in:present,absent,permission',
+            'reason'     => 'nullable|string'
         ]);
 
         $attendance = new Attendance();
@@ -50,6 +51,7 @@ class AttendanceController extends Controller
         $attendance->course_id  = $request->course_id;
         $attendance->date       = $request->date ?? now();      // default to current date
         $attendance->status     = $request->status ?? 'present'; // default status
+        $attendance->reason     = $request->reason; // ✅ add this
         $attendance->save();
 
         return response()->json($attendance, 201);
@@ -88,8 +90,9 @@ class AttendanceController extends Controller
         $validate=$request->validate([
             "student_id"=>"required|integer",
             "course_id"=>"required|integer",
-            "date"=>"required|string",
-            "status"=>"required|string",
+            "date"=>"required|date",
+            "status"=>"required|in:present,absent,permission",
+            "reason" => "nullable|string"
         ]);
         $attendance->update($validate);
         return response()->json([

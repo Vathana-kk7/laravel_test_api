@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->date('date');
             $table->enum('status', ['present','absent','permission']);
+            $table->text('reason')->nullable();
             $table->timestamps();
         });
     }

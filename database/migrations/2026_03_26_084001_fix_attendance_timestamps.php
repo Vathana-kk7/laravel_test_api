@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        // Backfill timestamps for attendances if data exists (after fresh migrate, may be empty)
+        DB::table('attendances')
+            ->whereNull('created_at')
+            ->update([
+                'created_at' => DB::raw('date'),
+                'updated_at' => DB::raw('NOW()')
+            ]);
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        //
+    }
+};
+
