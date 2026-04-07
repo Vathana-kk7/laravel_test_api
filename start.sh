@@ -1,25 +1,25 @@
 #!/bin/bash
-
-# Make sure the container doesn't exit on errors
 set -e
 
-# Ensure dependencies are installed
+echo "🚀 Starting Laravel..."
+
+# Install if missing
 if [ ! -f vendor/autoload.php ]; then
-    echo "📦 Installing dependencies..."
     composer install --no-dev --optimize-autoloader
 fi
 
-# Ensure application key is set
-if ! grep -q "APP_KEY=" .env 2>/dev/null || [ -z "$APP_KEY" ]; then
-    echo "🔑 Generating application key..."
-    php artisan key:generate
+# Generate key if not exists
+if [ -z "$APP_KEY" ]; then
+    php artisan key:generate --force
 fi
 
-echo "⏳ Running migrations..."
-php artisan migrate --force || echo "⚠️ Migrations failed (maybe already run)."
+# Clear cache
+php artisan config:clear
+php artisan config:cache
 
-echo "✅ Migration done!"
+# Run migration (SAFE)
+php artisan migrate --force || echo "Migration skipped"
 
-echo "🚀 Starting Laravel development server..."
-# Start server in foreground so Docker keeps running
+echo "✅ Ready!"
+
 php artisan serve --host=0.0.0.0 --port=10000
