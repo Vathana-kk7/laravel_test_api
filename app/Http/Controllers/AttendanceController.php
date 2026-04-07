@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -58,7 +57,6 @@ class AttendanceController extends Controller
         return response()->json($attendance, 201);
 
     } catch (\Throwable $th) {
-        \Log::error('Attendance Store Error: ' . $th->getMessage());
         return response()->json([
             "message"=>$th->getMessage(),
         ], 500);
@@ -89,22 +87,32 @@ class AttendanceController extends Controller
         try {
 
         $validate=$request->validate([
-            "student_id"=>"sometimes|integer",
-            "course_id"=>"sometimes|integer",
+            "student_id"=>"sometimes|integer|exists:student_in_classes,id",
+            "course_id"=>"sometimes|integer|exists:courses,id",
             "date"=>"sometimes|date",
-            "status"=>"sometimes|in:present,absent,permission",
+            "status"=>"sometimes|string|in:present,absent,permission",
             "reason" => "nullable|string"
         ]);
-        $attendance->update($validate);
+        
+        if (empty($validate)) {
+            return response()->json([
+                "message"=>"No valid data to update",
+            ], 400);
+        }
+        
+        foreach ($validate as $key => $value) {
+            $attendance->$key = $value;
+        }
+        $attendance->save();
+        
         return response()->json([
             "message"=>"Attendance update successfully",
             "data"=>$attendance,
         ]);
 
         } catch (\Throwable $th) {
-            //throw $th;
             return response()->json([
-                "message"=>$th->getMessage(),
+                "message"=>"Update failed: " . $th->getMessage(),
             ],500);
         }
     }

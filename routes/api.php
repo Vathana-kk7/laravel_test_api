@@ -40,4 +40,5 @@ Route::get("/attendance",[AttendanceController::class,"index"]);
 Route::post("/attendance",[AttendanceController::class,"store"]);
 //attendance update in addition delete
 Route::put("/attendance/{attendance}",[AttendanceController::class,"update"]);
+Route::patch("/attendance/{attendance}",[AttendanceController::class,"update"]);
 Route::delete("/attendance/{attendance}",[AttendanceController::class,"destroy"]);
