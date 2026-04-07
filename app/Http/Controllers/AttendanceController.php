@@ -86,12 +86,12 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, Attendance $attendance)
     {
-        try {
-            $validated = $request->validate([
-                'status' => 'required|in:present,absent,permission',
-                'reason' => 'nullable|string|max:255',
-            ]);
+        $validated = $request->validate([
+            'status' => 'required|in:present,absent,permission',
+            'reason' => 'nullable|string|max:255',
+        ]);
 
+        try {
             $attendance->update($validated);
 
             return response()->json($attendance->fresh());
