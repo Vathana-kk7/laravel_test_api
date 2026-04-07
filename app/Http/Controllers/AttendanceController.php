@@ -91,7 +91,7 @@ class AttendanceController extends Controller
 
         $attendance->update($validated);
 
-        return response()->json($attendance->fresh());
+        return response()->json($attendance->load(['student', 'course']));
     }
 
     /**
