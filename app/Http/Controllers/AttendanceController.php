@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -16,8 +17,8 @@ class AttendanceController extends Controller
         try {
             $attendance=Attendance::with(["student","course"])->get();
             return response()->json($attendance,200);
-        } catch (\Throwable $th) {
-            //throw $th;
+} catch (\Throwable $th) {
+            \Illuminate\Support\Facades\Log::error($th->getMessage());
             return response()->json([
                 "message"=>$th->getMessage(),
             ],500);
@@ -56,12 +57,13 @@ class AttendanceController extends Controller
 
         return response()->json($attendance, 201);
 
-    } catch (\Throwable $th) {
-        return response()->json([
-            "message"=>$th->getMessage(),
-        ], 500);
+} catch (\Throwable $th) {
+            \Illuminate\Support\Facades\Log::error($th->getMessage());
+            return response()->json([
+                "message"=>$th->getMessage(),
+            ],500);
+        }
     }
-}
 
     /**
      * Display the specified resource.
@@ -111,6 +113,7 @@ class AttendanceController extends Controller
         ]);
 
         } catch (\Throwable $th) {
+            \Illuminate\Support\Facades\Log::error($th->getMessage());
             return response()->json([
                 "message"=>"Update failed: " . $th->getMessage(),
             ],500);
@@ -129,7 +132,7 @@ class AttendanceController extends Controller
                 "message"=>"attendance delete successfully",
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
+            \Illuminate\Support\Facades\Log::error($th->getMessage());
              return response()->json([
                 "message"=>$th->getMessage(),
             ],500);
