@@ -37,6 +37,7 @@ Route::delete("/student/{student_in_class}",[StudentInClassController::class,"de
 
 //Attendance
 Route::get("/attendance",[AttendanceController::class,"index"]);
+Route::get("/attendance/{attendance}",[AttendanceController::class,"show"]);
 Route::post("/attendance",[AttendanceController::class,"store"]);
 //attendance update in addition delete
 Route::put("/attendance/{attendance}",[AttendanceController::class,"update"]);

@@ -11,18 +11,16 @@ class AttendanceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        try {
-            $attendance=Attendance::with(["student","course"])->get();
-            return response()->json($attendance,200);
-} catch (\Throwable $th) {
-            \Illuminate\Support\Facades\Log::error($th->getMessage());
-            return response()->json([
-                "message"=>$th->getMessage(),
-            ],500);
+        $query = Attendance::with(["student","course"]);
+
+        if ($request->has('date')) {
+            $query->where('date', $request->date);
         }
+
+        $attendance = $query->get();
+        return response()->json($attendance, 200);
     }
 
     /**
@@ -70,7 +68,7 @@ class AttendanceController extends Controller
      */
     public function show(Attendance $attendance)
     {
-        //
+        return response()->json($attendance->load(["student", "course"]));
     }
 
     /**
@@ -91,17 +89,9 @@ class AttendanceController extends Controller
             'reason' => 'nullable|string|max:255',
         ]);
 
-        try {
-            $attendance->update($validated);
+        $attendance->update($validated);
 
-            return response()->json($attendance->fresh());
-
-        } catch (\Throwable $th) {
-            \Illuminate\Support\Facades\Log::error($th->getMessage());
-            return response()->json([
-                "message" => "Update failed: " . $th->getMessage(),
-            ], 500);
-        }
+        return response()->json($attendance->fresh());
     }
 
     /**
