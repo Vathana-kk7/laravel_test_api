@@ -87,36 +87,20 @@ class AttendanceController extends Controller
     public function update(Request $request, Attendance $attendance)
     {
         try {
+            $validated = $request->validate([
+                'status' => 'required|in:present,absent,permission',
+                'reason' => 'nullable|string|max:255',
+            ]);
 
-        $validate=$request->validate([
-            "student_id"=>"sometimes|integer|exists:student_in_classes,id",
-            "course_id"=>"sometimes|integer|exists:courses,id",
-            "date"=>"sometimes|date",
-            "status"=>"sometimes|string|in:present,absent,permission",
-            "reason" => "nullable|string"
-        ]);
-        
-        if (empty($validate)) {
-            return response()->json([
-                "message"=>"No valid data to update",
-            ], 400);
-        }
-        
-        foreach ($validate as $key => $value) {
-            $attendance->$key = $value;
-        }
-        $attendance->save();
-        
-        return response()->json([
-            "message"=>"Attendance update successfully",
-            "data"=>$attendance,
-        ]);
+            $attendance->update($validated);
+
+            return response()->json($attendance->fresh());
 
         } catch (\Throwable $th) {
             \Illuminate\Support\Facades\Log::error($th->getMessage());
             return response()->json([
-                "message"=>"Update failed: " . $th->getMessage(),
-            ],500);
+                "message" => "Update failed: " . $th->getMessage(),
+            ], 500);
         }
     }
 
