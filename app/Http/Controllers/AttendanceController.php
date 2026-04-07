@@ -84,14 +84,13 @@ class AttendanceController extends Controller
      */
     public function update(Request $request, Attendance $attendance)
     {
-        //
         try {
 
         $validate=$request->validate([
-            "student_id"=>"required|integer",
-            "course_id"=>"required|integer",
-            "date"=>"required|date",
-            "status"=>"required|in:present,absent,permission",
+            "student_id"=>"sometimes|integer",
+            "course_id"=>"sometimes|integer",
+            "date"=>"sometimes|date",
+            "status"=>"sometimes|in:present,absent,permission",
             "reason" => "nullable|string"
         ]);
         $attendance->update($validate);
