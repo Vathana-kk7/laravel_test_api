@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
@@ -57,6 +58,7 @@ class AttendanceController extends Controller
         return response()->json($attendance, 201);
 
     } catch (\Throwable $th) {
+        \Log::error('Attendance Store Error: ' . $th->getMessage());
         return response()->json([
             "message"=>$th->getMessage(),
         ], 500);
