@@ -35,6 +35,19 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $e)
     {
         if ($request->expectsJson() || $request->is('api/*')) {
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                return response()->json([
+                    'message' => 'Resource not found'
+                ], 404);
+            }
+
             if ($e instanceof \Illuminate\Database\QueryException) {
                 \Illuminate\Support\Facades\Log::error('DB Error', ['sql' => $e->getSql(), 'error' => $e->getMessage()]);
                 return response()->json([
