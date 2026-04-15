@@ -1,10 +1,14 @@
-# Backend Fix Plan - AttendanceController@update
+# Fix API Connection Refused Errors
 
-## Steps:
-1. [x] Create/update TODO.md (done)
-2. [x] Edit app/Http/Controllers/AttendanceController.php update method
-3. [x] Clear caches: php artisan route:clear, composer dump-autoload
-4. [x] Test locally with tinker/curl
-5. [ ] Attempt completion
+## Status: Server Started ✅
 
-Status: Controller updated to use required 'status' validation + $attendance->update($validated) in try-catch. Caches cleared. Matches task snippet, handles frontend partial updates, fillable safe. Tests pass per feedback. Backend fix complete - deploy ready.
+1. ✅ Start Laravel development server
+2. [ ] Verify API endpoints accessible  
+3. [ ] Start frontend development server
+4. [ ] Test ReportPage functionality
+
+## Commands:
+- Backend: `php artisan serve` (running)
+- Frontend: Navigate to React app directory and run `npm run dev`
+
+
