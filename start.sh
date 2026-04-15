@@ -14,7 +14,10 @@ if [ -z "$APP_KEY" ]; then
 fi
 
 # Clear cache
+composer dump-autoload
 php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
 php artisan config:cache
 
 # Run migration (SAFE)
