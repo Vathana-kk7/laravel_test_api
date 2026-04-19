@@ -20,8 +20,8 @@ php artisan cache:clear
 php artisan route:clear
 php artisan config:cache
 
-# Run migration (SAFE)
-php artisan migrate:fresh --force || echo "Migration skipped"
+# Run migration
+php artisan migrate --force
 
 echo "✅ Ready!"
 
