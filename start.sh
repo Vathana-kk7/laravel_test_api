@@ -76,24 +76,17 @@ if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
     done
     echo "✅ Database ready!"
 
-    # Now safe to run composer dump-autoload and discover
+    echo "📦 Running Composer dump-autoload (no scripts)..."
     composer dump-autoload --optimize --no-scripts || true
-    php artisan package:discover --ansi || true
-    php artisan config:cache || true
-        # DB is ready — run Composer dump-autoload (no scripts) then manually discover packages
-        echo "📦 Running Composer dump-autoload (no scripts)..."
-        composer dump-autoload --optimize --no-scripts
 
-        echo "🔧 Discovering packages..."
-        if php artisan package:discover --ansi; then
-            echo "✅ Package discovery complete"
-        else
-            echo "⚠️  Package discovery failed"
-        fi
-
-        # Cache config after discovery
-        php artisan config:cache
+    echo "🔧 Discovering packages..."
+    if php artisan package:discover --ansi; then
+        echo "✅ Package discovery complete"
+    else
+        echo "⚠️  Package discovery failed"
     fi
+
+    php artisan config:cache || true
 else
     echo "⚠️  DB_HOST or DB_DATABASE not set — skipping DB operations"
 fi
