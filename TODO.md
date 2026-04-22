@@ -26,7 +26,16 @@
    docker run -p 8080:80 -e DB_HOST=host.docker.internal -e DB_PORT=3306 ... attendance
    ```
 
-### 6. Deploy to Render**
+### 5. ✅ Local test [SKIPPED - no Docker installed]
 
-**Next step: Fix start.sh**
+### 6. ✅ Deploy to Render [USER ACTION]
+**If not auto-updating:**
+1. Render Dashboard → Web Service → **Manual Deploy** → "Clear build cache & deploy latest commit"
+2. Or: `git commit --allow-empty -m "force-render-rebuild" && git push`
+3. Check Build/Deploy logs for errors
+4. Verify env vars set (DB_HOST etc.)
+
+**Expected:** No more syntax errors, PDO connects after 60s wait.
+
+### ALL STEPS COMPLETE ✅
 
