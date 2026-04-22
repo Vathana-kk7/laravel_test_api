@@ -36,9 +36,9 @@ php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
 
-# Wait for database to be ready
-if [ "$DB_CONNECTION" = "mysql" ] || [ "$DB_CONNECTION" = "pgsql" ]; then
-    echo "⏳ Waiting for database..."
+# Wait for database to be ready (only if DB_HOST is set)
+if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
+    echo "⏳ Waiting for database connection to $DB_HOST:$DB_PORT..."
     
     db_ready=0
     for i in $(seq 1 30); do
@@ -64,8 +64,10 @@ if [ "$DB_CONNECTION" = "mysql" ] || [ "$DB_CONNECTION" = "pgsql" ]; then
     done
     
     if [ $db_ready -eq 0 ]; then
-        echo "⚠️  Database not ready after 30 attempts. Continuing anyway..."
+        echo "⚠️  Database not ready after 30 attempts. Migrations may fail..."
     fi
+else
+    echo "⚠️  DB_HOST or DB_DATABASE not set — skipping DB wait"
 fi
 
 # Cache config
