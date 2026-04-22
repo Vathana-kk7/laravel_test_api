@@ -105,10 +105,15 @@ QUEUE_CONNECTION=redis
 6. Deploy!
 
 ### Troubleshooting
-- **PDO greeting packet**: Check DB firewall/SSL, increase timeout, verify env vars.
-- **Syntax error start.sh**: Fixed with bash-safe loops.
-- **Migrations fail**: Check logs, ensure DB ready.
-- Logs: Render Dashboard → Logs tab.
+- **Auto-deploy not triggering on git push**:
+  1. Dashboard → Service → **Settings** → Auto-deploy: "On main branch pushes" ✓
+  2. **Connected Repo** tab: Verify GitHub repo/branch correct (main/master).
+  3. Push to correct branch: `git push origin main`
+  4. Previous build failed? → Manual Deploy → Clear cache.
+- **PDO greeting packet**: DB wait loop + config fixes. Check env vars/DB firewall.
+- **Syntax error start.sh**: Fixed.
+- **Build fails**: Logs → docker issues (missing deps).
+- Logs: Dashboard → Logs tab.
 
 ### Local Test
 ```bash
