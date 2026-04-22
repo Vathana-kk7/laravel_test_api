@@ -11,8 +11,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
-
 RUN chmod -R 775 storage bootstrap/cache
 RUN chmod +x start.sh
 

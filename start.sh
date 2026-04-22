@@ -21,7 +21,7 @@ fi
 
 # Install if missing
 if [ ! -f vendor/autoload.php ]; then
-    composer install --no-dev --optimize-autoloader
+    composer install --no-dev --optimize-autoloader --no-scripts
 fi
 
 # Generate key if not exists
@@ -29,11 +29,10 @@ if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
-# Clear cache
-composer dump-autoload
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
+# Clear cache (pre-DB, safe)
+php artisan config:clear 2>/dev/null || true
+php artisan cache:clear 2>/dev/null || true
+php artisan route:clear 2>/dev/null || true
 
 # Wait for database to be ready (only if DB_HOST is set)
 if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
@@ -58,6 +57,53 @@ if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
         echo "📋 Fix: Render Dashboard → Service → Settings → Enable 'Outbound Networking'"
         echo "📋 Or migrate DB to Render's native MySQL/PostgreSQL service"
     fi
+    
+    db_ready=0
+    for i in $(seq 1 30); do
+        if php -r "
+            require __DIR__.'/vendor/autoload.php';
+            \$app = require_once __DIR__.'/bootstrap/app.php';
+            \$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+            try {
+                DB::connection()->getPdo();
+                echo 'OK';
+            } catch (Exception \$e) {
+                echo 'FAIL';
+            }
+        " 2>/dev/null | grep -q 'OK'; then
+            
+            echo "✅ Database connected!"
+            db_ready=1
+            break
+        fi
+        
+        echo "🔄 Attempt $i/30..."
+        sleep 2
+    done
+    
+    if [ $db_ready -eq 0 ]; then
+        echo "⚠️  Database not ready after 30 attempts. Migrations may fail..."
+        echo "📋 Check: 1) CA certificate uploaded and MYSQL_ATTR_SSL_CA set 2) DB is publicly accessible"
+    else
+        # DB is ready — run Composer scripts (package discovery) and cache config
+        echo "📦 Running Composer scripts..."
+        composer dump-autoload
+        
+        echo "🔧 Discovering packages..."
+        php artisan package:discover --ansi
+        
+        # Cache config after discovery
+        php artisan config:cache
+    fi
+else
+    echo "⚠️  DB_HOST or DB_DATABASE not set — skipping DB wait"
+fi
+
+# Run migration (best effort)
+echo "📦 Running migrations..."
+if ! php artisan migrate --force; then
+    echo "⚠️  Migrations failed — continuing anyway (app may have limited functionality)"
+fi
     
     db_ready=0
     for i in $(seq 1 30); do
