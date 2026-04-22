@@ -59,12 +59,7 @@ return [
             'strict' => false,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode='STRICT_TRANS_TABLES'",
                 PDO::ATTR_TIMEOUT => 30,
-                PDO::ATTR_EMULATE_PREPARES => true,
-                PDO::MYSQL_ATTR_FOUND_ROWS => true,
-                PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
             ]) : [],
         ],
 
