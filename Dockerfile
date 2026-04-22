@@ -16,6 +16,4 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chmod -R 775 storage bootstrap/cache
 RUN chmod +x start.sh
 
-EXPOSE 10000
-
 CMD ["bash", "start.sh"]
