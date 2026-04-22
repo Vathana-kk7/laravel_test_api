@@ -1,17 +1,35 @@
-FROM php:8.2-cli
+FROM composer:2 as composer
+
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+FROM php:8.2-fpm
+
+# Install system deps
+RUN apt-get update && apt-get install -y \
+    git curl libzip-dev unzip nginx-full supervisor netcat-openbsd \
+    && docker-php-ext-install zip pdo pdo_mysql \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy composer vendor
+COPY --from=composer /app/vendor /var/www/vendor
 
 WORKDIR /var/www
-
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip libzip-dev \
-    && docker-php-ext-install zip pdo pdo_mysql \
-    && apt-get clean
-
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
 COPY . .
+COPY nginx.conf /etc/nginx/sites-available/default
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-RUN chmod -R 775 storage bootstrap/cache
-RUN chmod +x start.sh
+# Build assets
+RUN npm ci --only=production \
+    && npm run build \
+    && rm -rf node_modules
 
-CMD ["bash", "start.sh"]
+# Permissions
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache \
+    && chmod +x start.sh
+
+# Run start.sh first (setup), then supervisor
+CMD ["sh", "-c", "bash start.sh && supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
