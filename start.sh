@@ -40,6 +40,26 @@ php artisan route:clear
 if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
     echo "⏳ Waiting for database connection to $DB_HOST:$DB_PORT..."
     
+    # First, test raw TCP connectivity (bypasses Laravel/PDO to diagnose network)
+    echo "🔍 Testing raw TCP connection..."
+    if php -r "
+        \$host = getenv('DB_HOST');
+        \$port = getenv('DB_PORT') ?: 3306;
+        \$s = fsockopen(\$host, (int)\$port, \$errno, \$errstr, 5);
+        if (!\$s) {
+            echo \"FAIL: \$errstr (\$errno)\";
+        } else {
+            echo 'OK';
+            fclose(\$s);
+        }
+    " 2>/dev/null | grep -q 'OK'; then
+        echo "✅ TCP connection established"
+    else
+        echo "❌ Cannot reach $DB_HOST:$DB_PORT — Render outbound networking may be blocked"
+        echo "📋 Fix: Render Dashboard → Service → Settings → Enable 'Outbound Networking'"
+        echo "📋 Or migrate DB to Render's native MySQL/PostgreSQL service"
+    fi
+    
     db_ready=0
     for i in $(seq 1 30); do
         if php -r "
@@ -50,7 +70,7 @@ if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
                 DB::connection()->getPdo();
                 echo 'OK';
             } catch (Exception \$e) {
-                echo 'FAIL';
+                echo 'FAIL: '.\$e->getMessage();
             }
         " 2>/dev/null | grep -q 'OK'; then
             
@@ -65,6 +85,7 @@ if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
     
     if [ $db_ready -eq 0 ]; then
         echo "⚠️  Database not ready after 30 attempts. Migrations may fail..."
+        echo "📋 Check: 1) CA certificate uploaded and MYSQL_ATTR_SSL_CA set 2) DB is publicly accessible"
     fi
 else
     echo "⚠️  DB_HOST or DB_DATABASE not set — skipping DB wait"
@@ -73,8 +94,11 @@ fi
 # Cache config
 php artisan config:cache
 
-# Run migration
-php artisan migrate --force
+# Run migration (best effort)
+echo "📦 Running migrations..."
+if ! php artisan migrate --force; then
+    echo "⚠️  Migrations failed — continuing anyway (app may have limited functionality)"
+fi
 
 echo "✅ Ready!"
 
