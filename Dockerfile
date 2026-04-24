@@ -28,7 +28,7 @@ COPY nginx.conf /etc/nginx/sites-available/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Build assets
-RUN npm install \
+RUN npm ci --only=production \
     && npm run build \
     && rm -rf node_modules
 
