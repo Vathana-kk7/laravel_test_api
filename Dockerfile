@@ -35,6 +35,7 @@ RUN npm ci --only=production \
 # Permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache \
+    && sed -i 's/\r//' start.sh \
     && chmod +x start.sh
 
 # Run start.sh (which will exec supervisord at the end)
