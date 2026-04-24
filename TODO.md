@@ -4,8 +4,12 @@
 
 ### 7. Fix `npm ci --only=production` error on Render [IN PROGRESS]
 **Problem:** Render build fails with `npm ci --only=production` because all deps are `devDependencies`.
-**Fix:** `Dockerfile` already updated locally to use `npm ci` (no `--only=production`).
-**Next:** Commit `.dockerignore` + `TODO.md`, push to Git, then clear Render build cache & redeploy.
+**Fix:** `Dockerfile` updated to use `npm ci` (no `--only=production`), plus:
+  - Copy `package.json` + `package-lock.json` first for layer caching
+  - Add `node --version && npm --version && ls -la package*.json` for debugging
+  - Install latest npm via `npm install -g npm@latest`
+  - Separate `npm ci` and `npm run build` into distinct steps
+**Next:** Commit + push updated `Dockerfile`, then clear Render build cache & redeploy.
 
 ### 1. ✅ Create TODO.md [DONE]
 
