@@ -31,11 +31,13 @@ php artisan config:clear 2>/dev/null || true
 php artisan cache:clear 2>/dev/null || true
 php artisan route:clear 2>/dev/null || true
 
-if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
+if [ -n "$DB_HOST" ] && [ -n "$DB_DATABASE" ]; then
     echo "Waiting for database connection to $DB_HOST:$DB_PORT..."
     
+    # Test raw TCP connectivity first
     echo "Testing TCP to $DB_HOST:$DB_PORT..."
-    timeout=5 nc -zvw$timeout $DB_HOST $DB_PORT &>/dev/null
+    timeout=5
+    nc -zvw"$timeout" "$DB_HOST" "$DB_PORT" &>/dev/null
     if [ $? -eq 0 ]; then
         echo "TCP OK"
     fi
@@ -70,11 +72,12 @@ if [ ! -z "$DB_HOST" ] && [ ! -z "$DB_DATABASE" ]; then
     
     php artisan package:discover --ansi || true
     php artisan config:cache || true
+    
+    echo "Running migrations..."
+    php artisan migrate --force || echo "Migrations failed"
 else
     echo "DB_HOST or DB_DATABASE not set - skipping DB operations"
 fi
 
-echo "Running migrations..."
-php artisan migrate --force || echo "Migrations failed"
-
 echo "Setup complete - starting services..."
+exec supervisord -c /etc/supervisor/conf.d/supervisord.conf

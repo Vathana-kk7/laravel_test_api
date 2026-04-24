@@ -13,6 +13,12 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy composer vendor
 COPY --from=composer /app/vendor /var/www/vendor
 
@@ -31,5 +37,5 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache \
     && chmod +x start.sh
 
-# Run start.sh first (setup), then supervisor
-CMD ["sh", "-c", "bash start.sh && supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+# Run start.sh (which will exec supervisord at the end)
+CMD ["/bin/bash", "/var/www/start.sh"]
