@@ -2,6 +2,11 @@
 
 ## Status: In Progress
 
+### 7. Fix `npm ci --only=production` error on Render [IN PROGRESS]
+**Problem:** Render build fails with `npm ci --only=production` because all deps are `devDependencies`.
+**Fix:** `Dockerfile` already updated locally to use `npm ci` (no `--only=production`).
+**Next:** Commit `.dockerignore` + `TODO.md`, push to Git, then clear Render build cache & redeploy.
+
 ### 1. ✅ Create TODO.md [DONE]
 
 ### 2. ✅ Fix start.sh syntax error and DB connection logic [DONE]
