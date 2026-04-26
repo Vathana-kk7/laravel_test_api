@@ -45,12 +45,11 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST') ?: env('RENDER_MYSQL_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT') ?: env('RENDER_MYSQL_PORT', '3306'),
-            'database' => env('DB_DATABASE') ?: env('RENDER_MYSQL_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME') ?: env('RENDER_MYSQL_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD') ?: env('RENDER_MYSQL_PASSWORD', ''),
+            'host' => env('DB_HOST'),
+            'port' => env('DB_PORT', '28484'),
+            'database' => env('DB_DATABASE'),
+            'username' => env('DB_USERNAME'),
+            'password' => env('DB_PASSWORD'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
@@ -59,8 +58,7 @@ return [
             'strict' => false,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::ATTR_TIMEOUT => 30,
-                PDO::ATTR_EMULATE_PREPARES => true,
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ]) : [],
         ],
 
